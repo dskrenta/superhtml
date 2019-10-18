@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <title>SuperHTML Demo</title>
+  </head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="root"></div>
+    <script type="text/javascript" src="../src/superhtml.js"></script>
+    <script>
+      'use strict';
+
+      const { createState, registerToDOM, render, componentDidMount } = window.superhtml;
+
+      const state = createState({
+        name: 'Foo',
+        age: 7
+      });
+
+      componentDidMount(() => {
+        console.log('component mounted');
+      });
+
+      const DemoComponent = ({ state }) => {
+        return render`
+          <div>
+            <h1>{state.name}</h1>
+          </div>
+        `;
+      };
+
+      registerToDOM('root', DemoComponent);
+    </script>
+  </body>
+</html>
