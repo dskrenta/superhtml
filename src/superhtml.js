@@ -82,37 +82,93 @@ window.superhtml = (() => {
   }
 
   function render(strings, ...values) {
-    let htmlStr = '';
-    const fullStr = strings.map((string, index) => `${string}${values[index] || ''}`).join('');
+    const tagBeforeStateRegex = /<.+>$/;
+    const tagAfterStateRegex = /^<\/.+>/;
+    const attributeBeforeStateRegex = /<.+=$/;
+    const attributeAfterStateRegex = /^.+>/;
+    const classCaptureRegex = /<.+class="(.+)".*>$/;
+    const classCaptureBeforeStateAttributeRegex = /<.*class="(.*)".*$/;
+    const classCaptureAfterStateAttributeRegex = /^.*class="(.*)".*>/;
 
-    const stateValues = fullStr.match(/{state\..*}/g);
-    const parsed = fullStr.split(/{state\..*}/);
+    const fullString = strings.map((string, index) => `${string}${values[index] || ''}`).join('');
+    let htmlString = '';
 
-    // console.log(fullStr, stateValues, parsed);
-
-    // console.log(parsed);
+    const stateValues = fullString.match(/{state\..*}/g);
+    const parsed = fullString.split(/{state\..*}/);
 
     for (let i = 0; i < parsed.length; i++) {
-      const beforeStr = parsed[i].trim();
       const stateKey = stateValues[i] ? stateValues[i].match(/{state\.(.+)}/)[1] : null;
-      const afterStr = parsed[i + 1] ? parsed[i + 1].trim() : null;
-      // console.log(beforeStr, stateKey, afterStr);
+      const currentString = parsed[i].trim();
+      const nextString = parsed[i + 1] ? parsed[i + 1].trim() : null;
 
-      if (beforeStr && stateKey && afterStr) {
-        console.log('contained');
-        htmlStr += `${beforeStr}${objectResolvePath(state, stateKey)}`;
+      if (currentString && nextString && stateKey) {
+        if (boolMatch(currentString, tagBeforeStateRegex) && boolMatch(nextString, tagAfterStateRegex)) {
+          const classCapture = currentString.match(classCaptureRegex);
+          if (classCapture) {
+            const className = createRandomClass();
+            const currentClass = classCapture[1];
+            const newClass = `${currentClass} ${className}`;
+            const classSelectionRegex = new RegExp(`class="${currentClass}"`);
+            const newString = currentString.replace(classSelectionRegex, `class="${newClass}"`);
+            addUpdateMapping(stateKey, {
+              type: 'replaceContent',
+              className
+            });
+            htmlString += `${newString}${objectResolvePath(state, stateKey)}`;
+          }
+          else {
+            const className = createRandomClass();
+            const stringWithClass = currentString.replace(/>$/, ` class="${className}">`);
+            addUpdateMapping(stateKey, {
+              type: 'replaceContent',
+              className
+            });
+            htmlString += `${stringWithClass}${objectResolvePath(state, stateKey)}`;
+          }
+        }
+        else if (boolMatch(currentString, /class=$/)) {
+          htmlString += `${currentString}${objectResolvePath(state, stateKey)}`;
+        }
+        else if (boolMatch(currentString, attributeBeforeStateRegex) && boolMatch(nextString, attributeAfterStateRegex)) {
+          const classCaptureBefore = currentString.match(classCaptureBeforeStateAttributeRegex);
+          const classCaptureAfter = nextString.match(classCaptureAfterStateAttributeRegex);
+          if (classCaptureBefore) {
+            const className = createRandomClass();
+            const currentClass = classCaptureBefore[1];
+            const newClass = `${currentClass} ${className}`;
+            const classSelectionRegex = new RegExp(`class="${currentClass}"`);
+            const newString = currentString.replace(classSelectionRegex, `class="${newClass}"`);
+            addUpdateMapping(stateKey, {
+              type: 'attribute',
+              className,
+              attribute: 'draggable'
+            });
+            htmlString += `${newString}${objectResolvePath(state, stateKey)}`;
+          }
+        }
+        else {
+          const className = createRandomClass();
+          addUpdateMapping(stateKey, {
+            type: 'replaceContent',
+            className
+          });
+          htmlString += `${currentString}<div class="${className}">${objectResolvePath(state, stateKey)}</div>`;
+        }
       }
-      else {  
-        console.log('not contained');
-        htmlStr += beforeStr;
+      else if (boolMatch(parsed[i], /{.+}/)) {
+        console.log('suspected js expression');
+        // actually parse expression
+        const expression = new Function('return');
+        htmlString += `${expression()}${parsed[i].replace(/{.+}/, '')}${stateKey ? objectResolvePath(state, stateKey) : ''}`;
+      }
+      else {
+        htmlString += `${parsed[i]}${stateKey ? objectResolvePath(state, stateKey) : ''}`;
       }
     }
 
-    console.log(htmlStr);
-
     componentMounted.resolve();
 
-    return htmlStr;
+    return htmlString;
   }
 
   function componentDidMount(onMountCallback) {

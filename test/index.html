@@ -22,14 +22,23 @@
         age: 7
       });
 
+      const sampleNames = ['Steve', 'Joe', 'Brett', 'Cranac', 'Questis', 'Plickmish'];
+
       componentDidMount(() => {
         console.log('component mounted');
+
+        // Some sample updates
+        setInterval(() => {
+          state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+          state.age = Math.floor(Math.random() * 60) + 1;
+        }, 1000);
       });
 
       const DemoComponent = ({ state }) => {
         return render`
           <div>
             <h1>{state.name}</h1>
+            <p>{state.age}</p>
           </div>
         `;
       };
