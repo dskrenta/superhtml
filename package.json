@@ -1,0 +1,19 @@
+{
+  "name": "superhtml",
+  "version": "1.0.0",
+  "description": "SuperHTML",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dskrenta/superhtml.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dskrenta/superhtml/issues"
+  },
+  "homepage": "https://github.com/dskrenta/superhtml#readme"
+}
