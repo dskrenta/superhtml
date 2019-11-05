@@ -81,6 +81,42 @@ window.superhtml = (() => {
     return state;
   }
 
+  function runExpression(str) {
+    return Function(`'use strict'; return(${str})`)();
+  }
+
+  function render(strings, ...values) {
+    let htmlStr = '';
+    const fullString = strings.map((string, index) => `${string}${values[index] || ''}`).join();
+    const expressions = fullString.match(/\{(.*?)\}/g).map(str => str.slice(1, str.length - 1));
+    const parsed = fullString.split(/\{.*?\}/);
+
+    for (let i = 0; i < parsed.length; i++) {
+      const beforeStr = parsed[i].trim();
+      const expression = expressions[i];
+      const afterStr = parsed[i + 1] ? parsed[i + 1].trim() : null;
+
+      // console.log(beforeStr, expression, afterStr);
+
+      if (beforeStr && expression && afterStr) {
+        htmlStr += `${beforeStr}${runExpression(expression)}`;
+        
+        if (boolMatch(beforeStr, />$/) && boolMatch(afterStr, /^<\//)) {
+          console.log('within tag');
+        }
+        else if (boolMatch(beforeStr, /="$/) && boolMatch(afterStr, /^"/)) {
+          console.log('attr');
+        }
+      }
+      else {
+        htmlStr += beforeStr;
+      }
+    }
+
+    return htmlStr;
+  }
+
+  /*
   function render(strings, ...values) {
     const tagBeforeStateRegex = /<.+>$/;
     const tagAfterStateRegex = /^<\/.+>/;
@@ -170,6 +206,7 @@ window.superhtml = (() => {
 
     return htmlString;
   }
+  */
 
   function componentDidMount(onMountCallback) {
     mountCallback = onMountCallback;

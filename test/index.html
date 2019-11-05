@@ -10,7 +10,7 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <div id="root"></div>
+    <span id="root"></span>
     <script type="text/javascript" src="../src/superhtml.js"></script>
     <script>
       'use strict';
@@ -19,7 +19,17 @@
 
       const state = createState({
         name: 'Foo',
-        age: 7
+        age: 7,
+        arr: [
+          'Hi,',
+          'nice',
+          'to', 
+          'meet',
+          'you.'
+        ], 
+        foo: {
+          stuff: 'Hi!'
+        }
       });
 
       const sampleNames = ['Steve', 'Joe', 'Brett', 'Cranac', 'Questis', 'Plickmish'];
@@ -28,10 +38,12 @@
         console.log('component mounted');
 
         // Some sample updates
+        /*
         setInterval(() => {
           state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
           state.age = Math.floor(Math.random() * 60) + 1;
         }, 1000);
+        */
       });
 
       const DemoComponent = ({ state }) => {
@@ -39,6 +51,9 @@
           <div>
             <h1>{state.name}</h1>
             <p>{state.age}</p>
+            <div class="{state.name}">{state.name}</div>
+            <p>{state.arr.join(' ')}</p>
+            <p>{state.foo.stuff}</p>
           </div>
         `;
       };
