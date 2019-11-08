@@ -122,10 +122,9 @@ window.superhtml = (() => {
         }
         // Opening tag
         else if (boolMatch(beforeStr, /<[^>]+$/)) {
-          // console.log(beforeStr.match(/<[^>]+$/), beforeStr.slice(0, 17));
           const openingTagRegex = beforeStr.match(/<[^>]+$/);
           currentTag = `${openingTagRegex[0]}${runExpression(expression)}`;
-          aheadText = beforeStr.slice(0, openingTagRegex[1]);
+          aheadText = beforeStr.replace(openingTagRegex[0], '');
           startingIndex = i;
           hashClass = createRandomClass();
         }
