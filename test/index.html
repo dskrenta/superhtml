@@ -49,9 +49,9 @@
       const DemoComponent = ({ state }) => {
         return render`
           <div>
-            <h1>{state.name}</h1>
+            <h1 class="hillbilly">{state.name}</h1>
             <p>{state.age}</p>
-            <div class="{state.name}">{state.name}</div>
+            <div class="{state.name}" other="{state.name}">{state.name}</div>
             <p>{state.arr.join(' ')}</p>
             <p>{state.foo.stuff}</p>
           </div>

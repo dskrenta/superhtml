@@ -91,6 +91,10 @@ window.superhtml = (() => {
     const expressions = fullString.match(/\{(.*?)\}/g).map(str => str.slice(1, str.length - 1));
     const parsed = fullString.split(/\{.*?\}/);
 
+    let currentTag = '';
+    let startingIndex = 0;
+    let endingIndex = 0;
+
     for (let i = 0; i < parsed.length; i++) {
       const beforeStr = parsed[i].trim();
       const expression = expressions[i];
@@ -98,14 +102,60 @@ window.superhtml = (() => {
 
       // console.log(beforeStr, expression, afterStr);
 
+      // console.log('Full tag', beforeStr.match(/<.+>/g));
+      // console.log('Partial tag', beforeStr.match(/<[^>]+$/));
+
       if (beforeStr && expression && afterStr) {
-        htmlStr += `${beforeStr}${runExpression(expression)}`;
+        const addStr = `${beforeStr}${runExpression(expression)}`;
+        htmlStr += addStr;
+
+        // Full tag
+        if (boolMatch(beforeStr, /<[^/]+>$/)) {
+          // console.log('Full tag', beforeStr);
+          currentTag = beforeStr.match(/<[^/|<]+/g).pop();
+          startingIndex = i;
+          endingIndex = null;
+        }
+        // Opening tag
+        else if (boolMatch(beforeStr, /<[^>]+$/)) {
+          // console.log('Opening tag', beforeStr);
+          currentTag = `${beforeStr.match(/<[^>]+$/)[0]}${runExpression(expression)}`;
+          // currentTag += addStr;
+          startingIndex = i;
+        }
+        // Closing tag
+        else if (boolMatch(beforeStr, /.+>$/)) {
+          // console.log('Closing tag', beforeStr);
+          currentTag += beforeStr;
+          endingIndex = i;
+        }
+        // Other
+        else {
+          // console.log('Other', beforeStr);
+          currentTag += addStr;
+        }
         
+        if (boolMatch(currentTag, /<.+>/)) {
+          console.log(currentTag, startingIndex, endingIndex);
+          
+          if (endingIndex) {
+            console.log('index range');
+            for (let i = startingIndex; i <= endingIndex; i++) {
+              console.log(expressions[i]);
+            }
+          }
+          else {
+            console.log('fixed index', expression);
+          }
+        }
+
         if (boolMatch(beforeStr, />$/) && boolMatch(afterStr, /^<\//)) {
-          console.log('within tag');
+          // console.log('within tag');
+          // console.log(currentTag);
         }
         else if (boolMatch(beforeStr, /="$/) && boolMatch(afterStr, /^"/)) {
-          console.log('attr');
+          // console.log('attr');
+          // console.log(currentTag);
         }
       }
       else {
