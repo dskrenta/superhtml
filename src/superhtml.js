@@ -59,12 +59,12 @@ window.superhtml = (() => {
   }
 
   function updateDOM(mappings, value) {
-    for (let { type, className, attribute } of mappings) {
+    for (let { type, className, expression, attribute } of mappings) {
       if (type === 'replaceContent') {
-        document.getElementsByClassName(className)[0].innerHTML = value;
+        document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
       }
       else if (type === 'attribute') {
-        document.getElementsByClassName(className)[0].setAttribute(attribute, value);
+        document.getElementsByClassName(className)[0].setAttribute(attribute, runExpression(expression));
       }
     }
   }
@@ -210,7 +210,7 @@ window.superhtml = (() => {
     }
 
     // console.log(htmlStr);
-    console.log(updateMap);
+    // console.log(updateMap);
 
     return htmlStr;
   }
