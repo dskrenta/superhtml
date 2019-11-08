@@ -58,6 +58,7 @@
             <div class="{state.name}" other="{state.name}">{state.name}</div>
             <p>{state.arr.join(' ')}</p>
             <p>{state.foo.stuff}</p>
+            <span>{state.arr.map(str => '<p>' + str + '</p>').join('')}</span>
           </div>
         `;
       };
