@@ -96,30 +96,18 @@ window.superhtml = (() => {
     let currentTag = '';
     let aheadText = null;
     let hashClass = null;
-    let startingIndex = 0;
-    let endingIndex = 0;
 
     for (let i = 0; i < parsed.length; i++) {
       const beforeStr = parsed[i].trim();
       const expression = expressions[i];
       const afterStr = parsed[i + 1] ? parsed[i + 1].trim() : null;
 
-      // console.log(beforeStr, expression, afterStr);
-
-      // console.log('Full tag', beforeStr.match(/<.+>/g));
-      // console.log('Partial tag', beforeStr.match(/<[^>]+$/));
-
       if (beforeStr && expression && afterStr) {
-        const addStr = `${beforeStr}${runExpression(expression)}`;
-        // htmlStr += addStr;
-
         // Full tag
         if (boolMatch(beforeStr, /<[^/]+>$/)) {
           const fullTagRegex = beforeStr.match(/<[^/|<]+/g);
           currentTag = fullTagRegex.pop();
           aheadText = beforeStr.replace(currentTag, '');
-          startingIndex = i;
-          endingIndex = null;
           hashClass = createRandomClass();
         }
         // Opening tag
@@ -127,22 +115,19 @@ window.superhtml = (() => {
           const openingTagRegex = beforeStr.match(/<[^>]+$/);
           currentTag = `${openingTagRegex[0]}${runExpression(expression)}`;
           aheadText = beforeStr.replace(openingTagRegex[0], '');
-          startingIndex = i;
           hashClass = createRandomClass();
         }
         // Closing tag
         else if (boolMatch(beforeStr, /.+>$/)) {
           currentTag += beforeStr;
-          endingIndex = i;
         }
         // Other
         else {
-          currentTag += addStr;
+          currentTag += `${beforeStr}${runExpression(expression)}`;
         }
         
-        if (boolMatch(currentTag, /<.+>/)) {
-          // console.log(currentTag, hashClass, startingIndex, endingIndex);
-          
+        // If current tag is a complete element
+        if (boolMatch(currentTag, /<.+>/)) {          
           const classCapture = currentTag.match(/class="(.+?)"/);
           // currentTag has class
           if (classCapture) {
@@ -153,28 +138,12 @@ window.superhtml = (() => {
             currentTag = `${currentTag.slice(0, currentTag.length - 1)} class="${hashClass}">`;
           } 
 
-          // console.log(aheadText);
-          // add removed part
+          // Add back ahead text
           htmlStr += `${aheadText}${currentTag}${runExpression(expression)}`;
           aheadText = '';
-
-          /*
-          if (endingIndex) {
-            console.log('index range');
-            for (let i = startingIndex; i <= endingIndex; i++) {
-              console.log(expressions[i]);
-            }
-          }
-          else {
-            console.log('fixed index', expression);
-          }
-          */
         }
 
-        // For building update map
-        // Find where state key is used
-        // Add record to update map
-
+        // Get all state keys used in expression
         const stateKeysRegex = expression.match(/state\.([^\.]+)/g);
         let stateKeys = [];
         if (stateKeysRegex) {
@@ -208,9 +177,6 @@ window.superhtml = (() => {
         htmlStr += beforeStr;
       }
     }
-
-    // console.log(htmlStr);
-    // console.log(updateMap);
 
     componentMounted.resolve();
 
