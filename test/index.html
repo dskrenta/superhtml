@@ -15,7 +15,7 @@
     <script>
       'use strict';
 
-      const { createState, registerToDOM, render, componentDidMount } = window.superhtml;
+      const { createState, registerToDOM, render, componentDidMount, template } = window.superhtml;
 
       const state = createState({
         name: 'Foo',
@@ -58,7 +58,7 @@
             <div class="{state.name}" other="{state.name}">{state.name}</div>
             <p>{state.arr.join(' ')}</p>
             <p>{state.foo.stuff}</p>
-            <span>{state.arr.map(str => '<p>' + str + '</p>').join('')}</span>
+            <span>{state.arr.map(str => template('<p>', str, '<p>')).join('')}</span>
           </div>
         `;
       };

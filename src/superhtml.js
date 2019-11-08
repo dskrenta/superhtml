@@ -283,10 +283,15 @@ window.superhtml = (() => {
     document.getElementById(id).insertAdjacentHTML('afterbegin', component(state));
   }
 
+  function template(...strings) {
+    return strings.join('');
+  }
+
   return {
     createState,
     render, 
     componentDidMount,
-    registerToDOM
+    registerToDOM,
+    template
   };
 })();
