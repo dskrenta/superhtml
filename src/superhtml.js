@@ -1,6 +1,8 @@
 'use strict';
 
 window.superhtml = (() => {
+  const LENGTH_OF_STATE_WORD = 6;
+
   class Deferred {
     constructor() {
       this.promise = new Promise((resolve, reject) => {
@@ -154,7 +156,7 @@ window.superhtml = (() => {
           // console.log(aheadText);
           // add removed part
           htmlStr += `${aheadText}${currentTag}${runExpression(expression)}`;
-          aheadText = null;
+          aheadText = '';
 
           /*
           if (endingIndex) {
@@ -172,23 +174,43 @@ window.superhtml = (() => {
         // For building update map
         // Find where state key is used
         // Add record to update map
-        /*
+
+        const stateKeysRegex = expression.match(/state\.([^\.]+)/g);
+        let stateKeys = [];
+        if (stateKeysRegex) {
+          stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD));
+        }
+
+        // State used within HTML element
         if (boolMatch(beforeStr, />$/) && boolMatch(afterStr, /^<\//)) {
-          // console.log('within tag');
-          // console.log(currentTag);
+          for (let stateKey of stateKeys) {
+            addUpdateMapping(stateKey, {
+              type: 'replaceContent',
+              className: hashClass,
+              expression: expression
+            });
+          }
         }
+        // State used in HTML element attribute
         else if (boolMatch(beforeStr, /="$/) && boolMatch(afterStr, /^"/)) {
-          // console.log('attr');
-          // console.log(currentTag);
+          const attributeRegex = beforeStr.match(/([a-zA-Z1-9]+)="$/);
+          for (let stateKey of stateKeys) {
+            addUpdateMapping(stateKey, {
+              type: 'replaceContent',
+              className: hashClass,
+              attribute: attributeRegex[1],
+              expression: expression
+            });
+          }
         }
-        */
       }
       else {
         htmlStr += beforeStr;
       }
     }
 
-    console.log(htmlStr);
+    // console.log(htmlStr);
+    console.log(updateMap);
 
     return htmlStr;
   }
