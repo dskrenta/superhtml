@@ -92,6 +92,7 @@ window.superhtml = (() => {
     const parsed = fullString.split(/\{.*?\}/);
 
     let currentTag = '';
+    let aheadText = null;
     let hashClass = null;
     let startingIndex = 0;
     let endingIndex = 0;
@@ -108,39 +109,55 @@ window.superhtml = (() => {
 
       if (beforeStr && expression && afterStr) {
         const addStr = `${beforeStr}${runExpression(expression)}`;
-        htmlStr += addStr;
+        // htmlStr += addStr;
 
         // Full tag
         if (boolMatch(beforeStr, /<[^/]+>$/)) {
-          // console.log('Full tag', beforeStr);
-          currentTag = beforeStr.match(/<[^/|<]+/g).pop();
+          const fullTagRegex = beforeStr.match(/<[^/|<]+/g);
+          currentTag = fullTagRegex.pop();
+          aheadText = beforeStr.replace(currentTag, '');
           startingIndex = i;
           endingIndex = null;
           hashClass = createRandomClass();
         }
         // Opening tag
         else if (boolMatch(beforeStr, /<[^>]+$/)) {
-          // console.log('Opening tag', beforeStr);
-          currentTag = `${beforeStr.match(/<[^>]+$/)[0]}${runExpression(expression)}`;
-          // currentTag += addStr;
+          // console.log(beforeStr.match(/<[^>]+$/), beforeStr.slice(0, 17));
+          const openingTagRegex = beforeStr.match(/<[^>]+$/);
+          currentTag = `${openingTagRegex[0]}${runExpression(expression)}`;
+          aheadText = beforeStr.slice(0, openingTagRegex[1]);
           startingIndex = i;
           hashClass = createRandomClass();
         }
         // Closing tag
         else if (boolMatch(beforeStr, /.+>$/)) {
-          // console.log('Closing tag', beforeStr);
           currentTag += beforeStr;
           endingIndex = i;
         }
         // Other
         else {
-          // console.log('Other', beforeStr);
           currentTag += addStr;
         }
         
         if (boolMatch(currentTag, /<.+>/)) {
-          console.log(currentTag, startingIndex, endingIndex);
+          // console.log(currentTag, hashClass, startingIndex, endingIndex);
           
+          const classCapture = currentTag.match(/class="(.+?)"/);
+          // currentTag has class
+          if (classCapture) {
+            currentTag = currentTag.replace(/class=".+"/, `class="${classCapture[1]} ${hashClass}"`);
+          }
+          // currentTag does not have class
+          else {
+            currentTag = `${currentTag.slice(0, currentTag.length - 1)} class="${hashClass}">`;
+          } 
+
+          // console.log(aheadText);
+          // add removed part
+          htmlStr += `${aheadText}${currentTag}${runExpression(expression)}`;
+          aheadText = null;
+
+          /*
           if (endingIndex) {
             console.log('index range');
             for (let i = startingIndex; i <= endingIndex; i++) {
@@ -150,6 +167,7 @@ window.superhtml = (() => {
           else {
             console.log('fixed index', expression);
           }
+          */
         }
 
         // For building update map
@@ -170,6 +188,8 @@ window.superhtml = (() => {
         htmlStr += beforeStr;
       }
     }
+
+    console.log(htmlStr);
 
     return htmlStr;
   }
