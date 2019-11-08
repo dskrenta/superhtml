@@ -212,6 +212,8 @@ window.superhtml = (() => {
     // console.log(htmlStr);
     // console.log(updateMap);
 
+    componentMounted.resolve();
+
     return htmlStr;
   }
 
