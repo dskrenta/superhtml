@@ -1,6 +1,8 @@
 'use strict';
 
 window.superhtml = (() => {
+  const LENGTH_OF_STATE_WORD = 6;
+
   /*
     Class containg a promise exposing resolve and reject functions externally
   */
@@ -102,12 +104,12 @@ window.superhtml = (() => {
     @param {*} value - value insert into DOM 
   */
   function updateDOM(mappings, value) {
-    for (let { type, className, attribute } of mappings) {
+    for (let { type, className, expression, attribute } of mappings) {
       if (type === 'replaceContent') {
-        document.getElementsByClassName(className)[0].innerHTML = value;
+        document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
       }
       else if (type === 'attribute') {
-        document.getElementsByClassName(className)[0].setAttribute(attribute, value);
+        document.getElementsByClassName(className)[0].setAttribute(attribute, runExpression(expression));
       }
     }
   }
@@ -133,12 +135,113 @@ window.superhtml = (() => {
     return state;
   }
 
+  function runExpression(str) {
+    return Function(`'use strict'; return(${str})`)();
+  }
+
   /*
     Takes a string passed through a tagged template and returns a formatted HTML string
 
     @param {string} str - String passed through tagged template
     @return {string} - resultant formatted HTML string
   */
+  function render(strings, ...values) {
+    let htmlStr = '';
+    const fullString = strings.map((string, index) => `${string}${values[index] || ''}`).join();
+    const expressions = fullString.match(/\{(.*?)\}/g).map(str => str.slice(1, str.length - 1));
+    const parsed = fullString.split(/\{.*?\}/);
+
+    let currentTag = '';
+    let aheadText = null;
+    let hashClass = null;
+
+    for (let i = 0; i < parsed.length; i++) {
+      const beforeStr = parsed[i].trim();
+      const expression = expressions[i];
+      const afterStr = parsed[i + 1] ? parsed[i + 1].trim() : null;
+
+      if (beforeStr && expression && afterStr) {
+        // Full tag
+        if (boolMatch(beforeStr, /<[^/]+>$/)) {
+          const fullTagRegex = beforeStr.match(/<[^/|<]+/g);
+          currentTag = fullTagRegex.pop();
+          aheadText = beforeStr.replace(currentTag, '');
+          hashClass = createRandomClass();
+        }
+        // Opening tag
+        else if (boolMatch(beforeStr, /<[^>]+$/)) {
+          const openingTagRegex = beforeStr.match(/<[^>]+$/);
+          currentTag = `${openingTagRegex[0]}${runExpression(expression)}`;
+          aheadText = beforeStr.replace(openingTagRegex[0], '');
+          hashClass = createRandomClass();
+        }
+        // Closing tag
+        else if (boolMatch(beforeStr, /.+>$/)) {
+          currentTag += beforeStr;
+        }
+        // Other
+        else {
+          currentTag += `${beforeStr}${runExpression(expression)}`;
+        }
+        
+        // If current tag is a complete element
+        if (boolMatch(currentTag, /<.+>/)) {          
+          const classCapture = currentTag.match(/class="(.+?)"/);
+          // currentTag has class
+          if (classCapture) {
+            currentTag = currentTag.replace(/class=".+"/, `class="${classCapture[1]} ${hashClass}"`);
+          }
+          // currentTag does not have class
+          else {
+            currentTag = `${currentTag.slice(0, currentTag.length - 1)} class="${hashClass}">`;
+          } 
+
+          // Add back ahead text
+          htmlStr += `${aheadText}${currentTag}${runExpression(expression)}`;
+          aheadText = '';
+        }
+
+        // Get all state keys used in expression
+        const stateKeysRegex = expression.match(/state\.([^\.]+)/g);
+        let stateKeys = [];
+        if (stateKeysRegex) {
+          stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD));
+        }
+
+        // State used within HTML element
+        if (boolMatch(beforeStr, />$/) && boolMatch(afterStr, /^<\//)) {
+          for (let stateKey of stateKeys) {
+            addUpdateMapping(stateKey, {
+              type: 'replaceContent',
+              className: hashClass,
+              expression: expression
+            });
+          }
+        }
+        // State used in HTML element attribute
+        else if (boolMatch(beforeStr, /="$/) && boolMatch(afterStr, /^"/)) {
+          const attributeRegex = beforeStr.match(/([a-zA-Z1-9]+)="$/);
+          for (let stateKey of stateKeys) {
+            addUpdateMapping(stateKey, {
+              type: 'replaceContent',
+              className: hashClass,
+              attribute: attributeRegex[1],
+              expression: expression
+            });
+          }
+        }
+      }
+      else {
+        htmlStr += beforeStr;
+      }
+    }
+
+    componentMounted.resolve();
+
+    return htmlStr;
+  }
+  
+  /*
   function render(strings, ...values) {
     const tagBeforeStateRegex = /<.+>$/;
     const tagAfterStateRegex = /^<\/.+>/;
@@ -239,6 +342,7 @@ window.superhtml = (() => {
 
     return htmlString;
   }
+  */
 
   /*
     Runs a callback when component is mounted
@@ -259,11 +363,16 @@ window.superhtml = (() => {
     document.getElementById(id).insertAdjacentHTML('afterbegin', component(state));
   }
 
+  function template(...strings) {
+    return strings.join('');
+  }
+
   // Expose API methods to client
   return {
     createState,
     render, 
     componentDidMount,
-    registerToDOM
+    registerToDOM,
+    template
   };
 })();

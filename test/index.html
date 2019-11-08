@@ -10,16 +10,26 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <div id="root"></div>
+    <span id="root"></span>
     <script type="text/javascript" src="../src/superhtml.js"></script>
     <script>
       'use strict';
 
-      const { createState, registerToDOM, render, componentDidMount } = window.superhtml;
+      const { createState, registerToDOM, render, componentDidMount, template } = window.superhtml;
 
       const state = createState({
         name: 'Foo',
-        age: 7
+        age: 7,
+        arr: [
+          'Hi,',
+          'nice',
+          'to', 
+          'meet',
+          'you.'
+        ], 
+        foo: {
+          stuff: 'Hi!'
+        }
       });
 
       const sampleNames = ['Steve', 'Joe', 'Brett', 'Cranac', 'Questis', 'Plickmish'];
@@ -27,18 +37,33 @@
       componentDidMount(() => {
         console.log('component mounted');
 
+        state.name = 'David';
+        state.arr = sampleNames;
+
         // Some sample updates
+        /*
         setInterval(() => {
           state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
           state.age = Math.floor(Math.random() * 60) + 1;
         }, 1000);
+        */
       });
+
+      function testFunc() {
+        state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+      }
 
       const DemoComponent = ({ state }) => {
         return render`
           <div>
-            <h1>{state.name}</h1>
+            <h1>Test...</h1>
+            <h2 class="hillbilly">{state.name}</h2>
             <p>{state.age}</p>
+            <div class="{state.name}" other="{state.name}">{state.name}</div>
+            <p>{state.arr.join(' ')}</p>
+            <p>{state.foo.stuff}</p>
+            <span>{state.arr.map(str => template('<p>', str, '</p>')).join('')}</span>
+            <button onclick="testFunc()">FUN!</button>
           </div>
         `;
       };
