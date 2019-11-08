@@ -92,6 +92,7 @@ window.superhtml = (() => {
     const parsed = fullString.split(/\{.*?\}/);
 
     let currentTag = '';
+    let hashClass = null;
     let startingIndex = 0;
     let endingIndex = 0;
 
@@ -115,6 +116,7 @@ window.superhtml = (() => {
           currentTag = beforeStr.match(/<[^/|<]+/g).pop();
           startingIndex = i;
           endingIndex = null;
+          hashClass = createRandomClass();
         }
         // Opening tag
         else if (boolMatch(beforeStr, /<[^>]+$/)) {
@@ -122,6 +124,7 @@ window.superhtml = (() => {
           currentTag = `${beforeStr.match(/<[^>]+$/)[0]}${runExpression(expression)}`;
           // currentTag += addStr;
           startingIndex = i;
+          hashClass = createRandomClass();
         }
         // Closing tag
         else if (boolMatch(beforeStr, /.+>$/)) {
@@ -149,6 +152,10 @@ window.superhtml = (() => {
           }
         }
 
+        // For building update map
+        // Find where state key is used
+        // Add record to update map
+        /*
         if (boolMatch(beforeStr, />$/) && boolMatch(afterStr, /^<\//)) {
           // console.log('within tag');
           // console.log(currentTag);
@@ -157,6 +164,7 @@ window.superhtml = (() => {
           // console.log('attr');
           // console.log(currentTag);
         }
+        */
       }
       else {
         htmlStr += beforeStr;
