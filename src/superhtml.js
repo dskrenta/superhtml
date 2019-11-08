@@ -1,6 +1,7 @@
 'use strict';
 
 window.superhtml = (() => {
+  // Slice length of the word "state"
   const LENGTH_OF_STATE_WORD = 6;
 
   /*
@@ -135,6 +136,12 @@ window.superhtml = (() => {
     return state;
   }
 
+  /*
+    Runs a JS expression and returns the result
+
+    @param {string} str - JS expression as a string
+    @return {*} result of expression
+  */
   function runExpression(str) {
     return Function(`'use strict'; return(${str})`)();
   }
@@ -242,109 +249,6 @@ window.superhtml = (() => {
   }
   
   /*
-  function render(strings, ...values) {
-    const tagBeforeStateRegex = /<.+>$/;
-    const tagAfterStateRegex = /^<\/.+>/;
-    const attributeBeforeStateRegex = /<.+=$/;
-    const attributeAfterStateRegex = /^.+>/;
-    const classCaptureRegex = /<.+class="(.+)".*>$/;
-    const classCaptureBeforeStateAttributeRegex = /<.*class="(.*)".*$/;
-    const classCaptureAfterStateAttributeRegex = /^.*class="(.*)".*>/;
-
-    const fullString = strings.map((string, index) => `${string}${values[index] || ''}`).join('');
-    let htmlString = '';
-
-    // Get state values
-    const stateValues = fullString.match(/{state\..*}/g);
-
-    // Get strings between state uses
-    const parsed = fullString.split(/{state\..*}/);
-
-    for (let i = 0; i < parsed.length; i++) {
-      const stateKey = stateValues[i] ? stateValues[i].match(/{state\.(.+)}/)[1] : null;
-      const currentString = parsed[i].trim();
-      const nextString = parsed[i + 1] ? parsed[i + 1].trim() : null;
-
-      if (currentString && nextString && stateKey) {
-        // State wrapped in HTML element
-        if (boolMatch(currentString, tagBeforeStateRegex) && boolMatch(nextString, tagAfterStateRegex)) {
-          const classCapture = currentString.match(classCaptureRegex);
-          // HTML element has class
-          if (classCapture) {
-            const className = createRandomClass();
-            const currentClass = classCapture[1];
-            const newClass = `${currentClass} ${className}`;
-            const classSelectionRegex = new RegExp(`class="${currentClass}"`);
-            const newString = currentString.replace(classSelectionRegex, `class="${newClass}"`);
-            addUpdateMapping(stateKey, {
-              type: 'replaceContent',
-              className
-            });
-            htmlString += `${newString}${objectResolvePath(state, stateKey)}`;
-          }
-          // HTML element does not have class
-          else {
-            const className = createRandomClass();
-            const stringWithClass = currentString.replace(/>$/, ` class="${className}">`);
-            addUpdateMapping(stateKey, {
-              type: 'replaceContent',
-              className
-            });
-            htmlString += `${stringWithClass}${objectResolvePath(state, stateKey)}`;
-          }
-        }
-        // State contained within class attribute
-        else if (boolMatch(currentString, /class=$/)) {
-          htmlString += `${currentString}${objectResolvePath(state, stateKey)}`;
-        }
-        // State contained in other attribute
-        else if (boolMatch(currentString, attributeBeforeStateRegex) && boolMatch(nextString, attributeAfterStateRegex)) {
-          const classCaptureBefore = currentString.match(classCaptureBeforeStateAttributeRegex);
-          const classCaptureAfter = nextString.match(classCaptureAfterStateAttributeRegex);
-          if (classCaptureBefore) {
-            const className = createRandomClass();
-            const currentClass = classCaptureBefore[1];
-            const newClass = `${currentClass} ${className}`;
-            const classSelectionRegex = new RegExp(`class="${currentClass}"`);
-            const newString = currentString.replace(classSelectionRegex, `class="${newClass}"`);
-            addUpdateMapping(stateKey, {
-              type: 'attribute',
-              className,
-              attribute: 'draggable'
-            });
-            htmlString += `${newString}${objectResolvePath(state, stateKey)}`;
-          }
-        }
-        else {
-          const className = createRandomClass();
-          addUpdateMapping(stateKey, {
-            type: 'replaceContent',
-            className
-          });
-          htmlString += `${currentString}<div class="${className}">${objectResolvePath(state, stateKey)}</div>`;
-        }
-      }
-      // Catchall for other JS expressions contained in curly brackets
-      else if (boolMatch(parsed[i], /{.+}/)) {
-        console.log('suspected js expression');
-        // actually parse expression
-        const expression = new Function('return');
-        htmlString += `${expression()}${parsed[i].replace(/{.+}/, '')}${stateKey ? objectResolvePath(state, stateKey) : ''}`;
-      }
-      // If none of the cases are above add the string directly to the HTML string with the current state value given the state key
-      else {
-        htmlString += `${parsed[i]}${stateKey ? objectResolvePath(state, stateKey) : ''}`;
-      }
-    }
-
-    // Indicate the component is mounted, results in the component mounted callback firing
-    componentMounted.resolve();
-
-    return htmlString;
-  }
-  */
-
-  /*
     Runs a callback when component is mounted
 
     @param {function} onMountCallback - callback to be run on component mount
@@ -363,6 +267,12 @@ window.superhtml = (() => {
     document.getElementById(id).insertAdjacentHTML('afterbegin', component(state));
   }
 
+  /*
+    Concatenates parameters together as a string
+
+    @param {array} list of parameters
+    @return {string} resultant string
+  */
   function template(...strings) {
     return strings.join('');
   }
