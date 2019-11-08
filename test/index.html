@@ -49,6 +49,10 @@
         */
       });
 
+      function testFunc() {
+        state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+      }
+
       const DemoComponent = ({ state }) => {
         return render`
           <div>
@@ -58,7 +62,8 @@
             <div class="{state.name}" other="{state.name}">{state.name}</div>
             <p>{state.arr.join(' ')}</p>
             <p>{state.foo.stuff}</p>
-            <span>{state.arr.map(str => template('<p>', str, '<p>')).join('')}</span>
+            <span>{state.arr.map(str => template('<p>', str, '</p>')).join('')}</span>
+            <button onclick="testFunc()">FUN!</button>
           </div>
         `;
       };
