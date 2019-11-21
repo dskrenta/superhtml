@@ -12,6 +12,7 @@
     </noscript>
     <span id="root"></span>
     <script type="text/javascript" src="../src/superhtml.js"></script>
+    <script type="text/javascript" src="./ExternalComponent.js"></script>
     <script>
       'use strict';
 
@@ -59,7 +60,21 @@
         state.arr = shuffleArray(state.arr);
       }
 
-      const DemoComponent = ({ state }) => {
+      const YetAnotherOne = (state) => {
+        return render`
+          <h1>{state.age}</h1>
+          <div>{ExternalComponent(state)}</div>
+        `;
+      };
+
+      const AnotherOne = (state) => {
+        return render`
+          <h1>{state.name}</h1>
+          <div>{YetAnotherOne(state)}</div>
+        `;
+      };
+
+      const DemoComponent = (state) => {
         return render`
           <div>
             <h1>Test...</h1>
@@ -70,6 +85,7 @@
             <p>{state.arr.join(' ')}</p>
             <span>{state.arr.map(str => template('<p>', str, '</p>')).join('')}</span>
             <button onclick="testFunc()">FUN!</button>
+            <div>{AnotherOne(state)}</div>
           </div>
         `;
       };
