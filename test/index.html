@@ -32,13 +32,15 @@
       const sampleNames = ['Steve', 'Joe', 'Brett', 'Cranac', 'Questis', 'Plickmish'];
 
       componentDidMount(() => {
-        console.log('component mounted');
+        // console.log('component mounted');
 
         // Some sample updates
+        /*
         setInterval(() => {
           state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
           state.age = Math.floor(Math.random() * 60) + 1;
         }, 1000);
+        */
       });
 
       function shuffleArray(arr) {
@@ -63,7 +65,8 @@
             <h1>Test...</h1>
             <h2>{state.name}</h2>
             <p>{state.age}</p>
-            <div class="{state.name}">{state.name}</div>
+            <div foo="{state.name}" class="{state.name}">{state.name}</div>
+            <p class="{state.name}" foo="{state.name}">{state.name}</p>
             <p>{state.arr.join(' ')}</p>
             <span>{state.arr.map(str => template('<p>', str, '</p>')).join('')}</span>
             <button onclick="testFunc()">FUN!</button>

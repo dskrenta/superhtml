@@ -191,12 +191,13 @@ window.superhtml = (() => {
           currentTag += `${beforeStr}${runExpression(expression)}`;
         }
         
+
         // If current tag is a complete element
         if (boolMatch(currentTag, /<.+>/)) {          
           const classCapture = currentTag.match(/class="(.+?)"/);
           // currentTag has class
           if (classCapture) {
-            currentTag = currentTag.replace(/class=".+"/, `class="${classCapture[1]} ${hashClass}"`);
+            currentTag = currentTag.replace(/class=".+?"/, `class="${classCapture[1]} ${hashClass}"`);
           }
           // currentTag does not have class
           else {
