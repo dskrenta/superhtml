@@ -39,9 +39,9 @@ window.superhtml = (() => {
   })
 
   /*
-    Returns a random hash to be used as an HTML class
+    Returns a random hash to be used as an HTML element class
 
-    @return {string} resultant hash
+    @return {String} resultant hash
   */
   function createRandomClass() {
     return window.btoa(window.crypto.getRandomValues(new Uint32Array(1)));
@@ -50,9 +50,9 @@ window.superhtml = (() => {
   /*
     Evaluates a regular expression on a string and returns a match boolean
     
-    @param {string} string - input string
+    @param {String} string - input string
     @param {RegExp} regex - regular expression 
-    @return {boolean} matched or not
+    @return {Boolean} matched or not
   */
   function boolMatch(string, regex) {
     const match = string.match(regex);
@@ -62,8 +62,8 @@ window.superhtml = (() => {
   /*
     Resolves the path of a key to a given object
 
-    @param {object} o - input object
-    @param {string} s- object key
+    @param {Object} o - input object
+    @param {String} s- object key
     @return {*} value at key in object
   */
   function objectResolvePath(o, s) {
@@ -84,8 +84,8 @@ window.superhtml = (() => {
   /*
     Adds update mapping to update map
 
-    @param {string} stateKey - state key
-    @param {object} inputObj - object containing data required for update
+    @param {String} stateKey - state key
+    @param {Object} inputObj - object containing data required for update
   */
   function addUpdateMapping(stateKey, inputObj) {
     if (stateKey in updateMap) {
@@ -101,7 +101,7 @@ window.superhtml = (() => {
   /*
     Updates the DOM given a series of update mappings and value
 
-    @param {array} mappings - array of mappings
+    @param {Array} mappings - array of mappings
     @param {*} value - value insert into DOM 
   */
   function updateDOM(mappings, value) {
@@ -124,8 +124,8 @@ window.superhtml = (() => {
   /*
     Creates a SuperHTML state object given an object
 
-    @param {object} stateObject - input state object
-    @return {object} - proxied version of input state object
+    @param {Object} stateObject - input state object
+    @return {Object} - proxied version of input state object
   */
   function createState(stateObject) {
     const handler = {
@@ -144,7 +144,7 @@ window.superhtml = (() => {
   /*
     Runs a JS expression and returns the result
 
-    @param {string} str - JS expression as a string
+    @param {String} str - JS expression as a string
     @return {*} result of expression
   */
   function runExpression(str) {
@@ -154,8 +154,8 @@ window.superhtml = (() => {
   /*
     Takes a string passed through a tagged template and returns a formatted HTML string
 
-    @param {string} str - String passed through tagged template
-    @return {string} - resultant formatted HTML string
+    @param {String} str - String passed through tagged template
+    @return {String} - resultant formatted HTML string
   */
   function render(strings, ...values) {
     let htmlStr = '';
@@ -257,7 +257,7 @@ window.superhtml = (() => {
   /*
     Runs a callback when component is mounted
 
-    @param {function} onMountCallback - callback to be run on component mount
+    @param {Function} onMountCallback - callback to be run on component mount
   */
   function componentDidMount(onMountCallback) {
     mountCallback = onMountCallback;
@@ -266,8 +266,8 @@ window.superhtml = (() => {
   /*
     Registers a component to the DOM given an element id
 
-    @param {string} id - element id
-    @param {string} component - HTML string resulting from the SuperHTML render function
+    @param {String} id - element id
+    @param {String} component - HTML string resulting from the SuperHTML render function
   */
   function registerToDOM(id, component) {
     document.getElementById(id).insertAdjacentHTML('afterbegin', component(state));
@@ -276,8 +276,8 @@ window.superhtml = (() => {
   /*
     Concatenates parameters together as a string
 
-    @param {array} list of parameters
-    @return {string} resultant string
+    @param {Array} list of parameters
+    @return {String} resultant string
   */
   function template(...strings) {
     return strings.join('');
