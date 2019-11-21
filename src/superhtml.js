@@ -111,7 +111,7 @@ window.superhtml = (() => {
       }
       else if (type === 'replaceAttribute') {
         let newAttributeValue = runExpression(expression);
-        // If attribute is class don't overwrite our inserted hash class from render
+        // If attribute is class, don't overwrite our inserted hash class from render
         if (attribute === 'class') {
           newAttributeValue += ` ${className}`;
         } 
@@ -250,8 +250,6 @@ window.superhtml = (() => {
     }
 
     componentMounted.resolve();
-
-    console.log(updateMap);
 
     return htmlStr;
   }
