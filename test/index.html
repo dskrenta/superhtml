@@ -76,17 +76,14 @@
 
       const DemoComponent = (state) => {
         return render`
-          <div>
-            <h1>Test...</h1>
-            <h2>{state.name}</h2>
-            <p>{state.age}</p>
-            <div foo="{state.name}" class="{state.name}">{state.name}</div>
-            <p class="{state.name}" foo="{state.name}">{state.name}</p>
-            <p>{state.arr.join(' ')}</p>
-            <span>{state.arr.map(str => template('<p>', str, '</p>')).join('')}</span>
-            <button onclick="testFunc()">FUN!</button>
-            <div>{AnotherOne(state)}</div>
-          </div>
+          <h1>Test...</h1>
+          <h2>{state.name}</h2>
+          <p>{state.age}</p>
+          <div foo="{state.name}" class="{state.name}">{state.name}</div>
+          <p class="{state.name}" foo="{state.name}">{state.name}</p>
+          <p>{state.arr.join(' ')}</p>
+          <span>{state.arr.map(str => template('<p>', str, '</p>')).join('')}</span>
+          <button onclick="testFunc()">FUN!</button>
         `;
       };
 

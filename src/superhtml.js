@@ -109,8 +109,13 @@ window.superhtml = (() => {
       if (type === 'replaceContent') {
         document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
       }
-      else if (type === 'attribute') {
-        document.getElementsByClassName(className)[0].setAttribute(attribute, runExpression(expression));
+      else if (type === 'replaceAttribute') {
+        let newAttributeValue = runExpression(expression);
+        // If attribute is class don't overwrite our inserted hash class from render
+        if (attribute === 'class') {
+          newAttributeValue += ` ${className}`;
+        } 
+        document.getElementsByClassName(className)[0].setAttribute(attribute, newAttributeValue);
       }
     }
   }
@@ -231,7 +236,7 @@ window.superhtml = (() => {
           const attributeRegex = beforeStr.match(/([a-zA-Z1-9]+)="$/);
           for (let stateKey of stateKeys) {
             addUpdateMapping(stateKey, {
-              type: 'replaceContent',
+              type: 'replaceAttribute',
               className: hashClass,
               attribute: attributeRegex[1],
               expression: expression
@@ -245,6 +250,8 @@ window.superhtml = (() => {
     }
 
     componentMounted.resolve();
+
+    console.log(updateMap);
 
     return htmlStr;
   }
