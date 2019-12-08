@@ -39,21 +39,29 @@
           'meet',
           'you.'
         ],
-        class: 'red'
+        class: 'red',
+        nested: {
+          foo: {
+            bool: true
+          }
+        }
       });
 
       const sampleNames = ['Steve', 'Joe', 'Brett', 'Cranac', 'Questis', 'Plickmish'];
       const classes = ['red', 'blue', 'green'];
 
       componentDidMount(() => {
-        console.log('component mounted');
+        // console.log('component mounted');
 
         // Some sample updates
+        /*
         setInterval(() => {
           state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
           state.age = Math.floor(Math.random() * 60) + 1;
           state.class = classes[Math.floor(Math.random() * classes.length)];
         }, 1000);
+        */
+        // state.nested.foo.bool = false;
       });
 
       function shuffleArray(arr) {
@@ -71,6 +79,8 @@
         state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
         state.arr = shuffleArray(state.arr);
       }
+
+      // <p>{state.nested.foo.bool}</p>
 
       const YetAnotherOne = (state) => {
         return render`

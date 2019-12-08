@@ -102,24 +102,59 @@ window.superhtml = (() => {
     Updates the DOM given a series of update mappings and value
 
     @param {Array} mappings - array of mappings
-    @param {*} value - value insert into DOM 
   */
-  function updateDOM(mappings, value) {
-    for (let { type, className, expression, attribute } of mappings) {
-      if (type === 'replaceContent') {
-        document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
+  function updateDOM(updateProp) {
+    const mappings = updateMap[updateProp];
+    if (mappings) {
+      for (const { type, className, expression, attribute } of mappings) {
+        if (type === 'replaceContent') {
+          document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
+        }
+        else if (type === 'replaceAttribute') {
+          let newAttributeValue = runExpression(expression);
+          // If attribute is class, don't overwrite our inserted hash class from render
+          if (attribute === 'class') {
+            newAttributeValue += ` ${className}`;
+          } 
+          document.getElementsByClassName(className)[0].setAttribute(attribute, newAttributeValue);
+        }
       }
-      else if (type === 'replaceAttribute') {
-        let newAttributeValue = runExpression(expression);
-        // If attribute is class, don't overwrite our inserted hash class from render
-        if (attribute === 'class') {
-          newAttributeValue += ` ${className}`;
-        } 
-        document.getElementsByClassName(className)[0].setAttribute(attribute, newAttributeValue);
-      }
+    }
+    else {
+      console.error(`Mappings undefined for prop: ${updateProp}`);
     }
   }
 
+  /*
+    Returns a proxy trap which runs updateDOM with passed prop on object set triggers
+  */
+  function createProxyTraps() {
+    return {
+      set: (obj, prop, value) => {
+        obj[prop] = value;
+        updateDOM(prop);
+        return true;
+      }
+    };
+  }
+
+
+  /*
+    Iterates over all child objects given parent object and inserts proxy for update mapping
+
+    @param {Object} obj - object
+    @return {Object} - object with proxies replacing children objects
+  */
+  function recurseObjectAndInsertProxy(obj) {
+    for (const prop in obj) {
+      if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
+        obj[prop] = new Proxy(obj[prop], createProxyTraps());
+        recurseObjectAndInsertProxy(obj[prop]);
+      }
+    }
+    
+    return obj;
+  }
 
   /*
     Creates a SuperHTML state object given an object
@@ -128,15 +163,9 @@ window.superhtml = (() => {
     @return {Object} - proxied version of input state object
   */
   function createState(stateObject) {
-    const handler = {
-      set: (obj, prop, value) => {
-        obj[prop] = value;
-        updateDOM(updateMap[prop], value);
-        return true;
-      }
-    };
+    stateObject = recurseObjectAndInsertProxy(stateObject, createProxyTraps())
 
-    state = new Proxy(stateObject, handler);
+    state = new Proxy(stateObject, createProxyTraps());
 
     return state;
   }
