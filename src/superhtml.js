@@ -272,7 +272,6 @@ window.superhtml = (() => {
           currentTag += `${beforeStr}${runExpression(expression)}`;
         }
         
-
         // If current tag is a complete element
         if (boolMatch(currentTag, /<.+>/)) {          
           const classCapture = currentTag.match(/class="(.+?)"/);
