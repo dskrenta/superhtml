@@ -85,7 +85,6 @@
         return render`
           <h1>{state.age}</h1>
           <div>{ExternalComponent(state)}</div>
-          <p>{state.nested.foo.bool}</p>
         `;
       };
 
@@ -108,6 +107,7 @@
           <button onclick="testFunc()">FUN!</button>
           <div>{AnotherOne(state)}</div>
           <div>{YetAnotherOne(state)}</div>
+          <p>{state.nested.foo.bool}</p>
         `;
       };
 

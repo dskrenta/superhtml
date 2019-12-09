@@ -129,7 +129,7 @@ window.superhtml = (() => {
     for (const [prop, value] of Object.entries(obj)) {
       if (prop === inputProp && value === inputValue) {
         path += `.${prop}`;
-        return path;
+        return path.slice(1);
       }
       else if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
         path += `.${prop}`;
@@ -147,8 +147,7 @@ window.superhtml = (() => {
     return {
       set: (obj, prop, value) => {
         obj[prop] = value;
-        console.log(findFullPath(state, prop, value));
-        updateDOM(prop);
+        updateDOM(findFullPath(state, prop, value));
         return true;
       }
     };
@@ -261,9 +260,21 @@ window.superhtml = (() => {
 
         // Get all state keys used in expression
         const stateKeysRegex = expression.match(/state\.([^\.]+)/g);
+
+        // NOTE: nestedStateKeysRegex does leak incorrect props to the updateMap
+        const nestedStateKeysRegex = expression.match(/state\.(.*\..*)/g);
+        
         let stateKeys = [];
+
         if (stateKeysRegex) {
           stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD));
+        }
+
+        if (nestedStateKeysRegex) {
+          stateKeys = [
+            ...stateKeys,
+            ...nestedStateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD))
+          ]
         }
 
         // State used within HTML element
