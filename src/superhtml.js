@@ -60,6 +60,16 @@ window.superhtml = (() => {
   }
 
   /*
+    Returns boolean based on whether passed value is object
+
+    @param {*} value - input value
+    @return {Boolean} value is object boolean
+  */
+  function isObject(value) {
+    return typeof value === 'object' && value !== null && !value.length;
+  }
+
+  /*
     Resolves the path of a key to a given object
 
     @param {Object} o - input object
@@ -135,9 +145,10 @@ window.superhtml = (() => {
     for (const [prop, value] of Object.entries(obj)) {
       if (prop === inputProp && value === inputValue) {
         path += `.${prop}`;
+        // Remove leading dot
         return path.slice(1);
       }
-      else if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
+      else if (isObject(obj[prop])) {
         path += `.${prop}`;
         return findFullPath(obj[prop], inputProp, inputValue, path);
       }
@@ -168,7 +179,7 @@ window.superhtml = (() => {
   */
   function recurseObjectAndInsertProxy(obj) {
     for (const prop in obj) {
-      if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
+      if (isObject(obj[prop])) {
         obj[prop] = new Proxy(obj[prop], createProxyTraps());
         recurseObjectAndInsertProxy(obj[prop]);
       }
