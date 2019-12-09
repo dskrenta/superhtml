@@ -1,8 +1,8 @@
 'use strict';
 
 window.superhtml = (() => {
-  // Slice length of the word "state"
-  const LENGTH_OF_STATE_WORD = 6;
+  // Length of the string "state."
+  const LENGTH_OF_STATE_PREFIX = 6;
 
   /*
     Class containg a promise exposing resolve and reject functions externally
@@ -120,11 +120,17 @@ window.superhtml = (() => {
         }
       }
     }
-    else {
-      console.error(`Mappings undefined for prop: ${updateProp}`);
-    }
   }
 
+  /*
+    Returns the full nested path of a object prop and value given the object
+    Assumes every [key, value] pair throughout object is unique
+
+    @param {Object} obj - input object
+    @param {String} inputProp - input prop
+    @param {String} inputValue - input value
+    @param {String} path - path recursion temporary storage variable 
+  */
   function findFullPath(obj, inputProp, inputValue, path = '') {
     for (const [prop, value] of Object.entries(obj)) {
       if (prop === inputProp && value === inputValue) {
@@ -195,6 +201,12 @@ window.superhtml = (() => {
     return Function(`'use strict'; return(${str})`)();
   }
 
+  /*
+    Returns boolean based on if passsed function name is a prototype function of commonly used data types
+
+    @param {String} functionName - function name
+    @return {Boolean} is prototype boolean
+  */
   function isPrototypeFunction(functionName) {
     return (
       Array.prototype.hasOwnProperty(functionName) || 
@@ -277,17 +289,17 @@ window.superhtml = (() => {
         let stateKeys = [];
 
         if (stateKeysRegex) {
-          stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD));
+          stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_PREFIX));
         }
 
         if (nestedStateKeysRegex) {
           for (const stateKey of nestedStateKeysRegex) {
             const functionPrototypeRegex = stateKey.match(/\.([a-zA-Z]+)\(/);
             if (functionPrototypeRegex && isPrototypeFunction(functionPrototypeRegex[1])) {
-              stateKeys.push(stateKey.replace(/\.[a-zA-z]+\(.*/, ''));
+              stateKeys.push(stateKey.replace(/\.[a-zA-z]+\(.*/, '').slice(LENGTH_OF_STATE_PREFIX));
             }
             else {
-              stateKeys.push(stateKey);
+              stateKeys.push(stateKey.slice(LENGTH_OF_STATE_PREFIX));
             }
           }
         }
@@ -321,8 +333,6 @@ window.superhtml = (() => {
     }
 
     componentMounted.resolve();
-
-    console.log(updateMap);
 
     return htmlStr;
   }
