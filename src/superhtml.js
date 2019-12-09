@@ -170,7 +170,6 @@ window.superhtml = (() => {
     };
   }
 
-
   /*
     Iterates over all child objects given parent object and inserts proxy for update mapping
 
