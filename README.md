@@ -1,5 +1,7 @@
 # SuperHTML
 
+> Be Proactive, Not Reactive
+
 ## Usage
 
 Open `test/index.html` in your desired web browser
