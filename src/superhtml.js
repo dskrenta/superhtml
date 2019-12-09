@@ -176,11 +176,11 @@ window.superhtml = (() => {
     @param {Object} obj - object
     @return {Object} - object with proxies replacing children objects
   */
-  function recurseObjectAndInsertProxy(obj) {
+  function recurseObjectAndInsertProxies(obj) {
     for (const prop in obj) {
       if (isObject(obj[prop])) {
         obj[prop] = new Proxy(obj[prop], createProxyTraps());
-        recurseObjectAndInsertProxy(obj[prop]);
+        recurseObjectAndInsertProxies(obj[prop]);
       }
     }
     
@@ -194,9 +194,10 @@ window.superhtml = (() => {
     @return {Object} - proxied version of input state object
   */
   function createState(stateObject) {
-    stateObject = recurseObjectAndInsertProxy(stateObject, createProxyTraps());
-
-    state = new Proxy(stateObject, createProxyTraps());
+    state = new Proxy(
+      recurseObjectAndInsertProxies(stateObject, createProxyTraps()), 
+      createProxyTraps()
+    );
 
     return state;
   }
@@ -223,7 +224,8 @@ window.superhtml = (() => {
       Object.prototype.hasOwnProperty(functionName) || 
       Number.prototype.hasOwnProperty(functionName) || 
       String.prototype.hasOwnProperty(funcitonName) || 
-      Boolean.prototype.hasOwnProperty(functionName)
+      Boolean.prototype.hasOwnProperty(functionName) ||
+      Function.prototype.hasOwnProperty(funcitonName)
     );
   }
 
