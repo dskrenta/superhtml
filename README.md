@@ -1,6 +1,6 @@
 # SuperHTML
 
-> Be Proactive, Not Reactive
+> Be proactive, not reactive
 
 ## Usage
 
