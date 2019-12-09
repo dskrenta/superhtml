@@ -195,6 +195,16 @@ window.superhtml = (() => {
     return Function(`'use strict'; return(${str})`)();
   }
 
+  function isPrototypeFunction(functionName) {
+    return (
+      Array.prototype.hasOwnProperty(functionName) || 
+      Object.prototype.hasOwnProperty(functionName) || 
+      Number.prototype.hasOwnProperty(functionName) || 
+      String.prototype.hasOwnProperty(funcitonName) || 
+      Boolean.prototype.hasOwnProperty(functionName)
+    );
+  }
+
   /*
     Takes a string passed through a tagged template and returns a formatted HTML string
 
@@ -261,7 +271,7 @@ window.superhtml = (() => {
         // Get all state keys used in expression
         const stateKeysRegex = expression.match(/state\.([^\.]+)/g);
 
-        // NOTE: nestedStateKeysRegex does leak incorrect props to the updateMap
+        // Get all nested state keys used in expression
         const nestedStateKeysRegex = expression.match(/state\.(.*\..*)/g);
         
         let stateKeys = [];
@@ -271,10 +281,15 @@ window.superhtml = (() => {
         }
 
         if (nestedStateKeysRegex) {
-          stateKeys = [
-            ...stateKeys,
-            ...nestedStateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD))
-          ]
+          for (const stateKey of nestedStateKeysRegex) {
+            const functionPrototypeRegex = stateKey.match(/\.([a-zA-Z]+)\(/);
+            if (functionPrototypeRegex && isPrototypeFunction(functionPrototypeRegex[1])) {
+              stateKeys.push(stateKey.replace(/\.[a-zA-z]+\(.*/, ''));
+            }
+            else {
+              stateKeys.push(stateKey);
+            }
+          }
         }
 
         // State used within HTML element
@@ -306,6 +321,8 @@ window.superhtml = (() => {
     }
 
     componentMounted.resolve();
+
+    console.log(updateMap);
 
     return htmlStr;
   }
