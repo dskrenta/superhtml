@@ -125,13 +125,29 @@ window.superhtml = (() => {
     }
   }
 
+  function findFullPath(obj, inputProp, inputValue, path = '') {
+    for (const [prop, value] of Object.entries(obj)) {
+      if (prop === inputProp && value === inputValue) {
+        path += `.${prop}`;
+        return path;
+      }
+      else if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
+        path += `.${prop}`;
+        return findFullPath(obj[prop], inputProp, inputValue, path);
+      }
+    }
+
+    return false;
+  }
+
   /*
-    Returns a proxy trap which runs updateDOM with passed prop on object set triggers
+    Returns a proxy trap which runs updateDOM with passed prop on underlying object set trigger
   */
   function createProxyTraps() {
     return {
       set: (obj, prop, value) => {
         obj[prop] = value;
+        console.log(findFullPath(state, prop, value));
         updateDOM(prop);
         return true;
       }
@@ -163,7 +179,7 @@ window.superhtml = (() => {
     @return {Object} - proxied version of input state object
   */
   function createState(stateObject) {
-    stateObject = recurseObjectAndInsertProxy(stateObject, createProxyTraps())
+    stateObject = recurseObjectAndInsertProxy(stateObject, createProxyTraps());
 
     state = new Proxy(stateObject, createProxyTraps());
 

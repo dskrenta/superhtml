@@ -78,14 +78,14 @@
       function testFunc() {
         state.name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
         state.arr = shuffleArray(state.arr);
+        state.nested.foo.bool = !state.nested.foo.bool;
       }
-
-      // <p>{state.nested.foo.bool}</p>
 
       const YetAnotherOne = (state) => {
         return render`
           <h1>{state.age}</h1>
           <div>{ExternalComponent(state)}</div>
+          <p>{state.nested.foo.bool}</p>
         `;
       };
 
