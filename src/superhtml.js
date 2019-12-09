@@ -1,8 +1,8 @@
 'use strict';
 
 window.superhtml = (() => {
-  // Slice length of the word "state"
-  const LENGTH_OF_STATE_WORD = 6;
+  // Length of the string "state."
+  const LENGTH_OF_STATE_PREFIX = 6;
 
   /*
     Class containg a promise exposing resolve and reject functions externally
@@ -102,24 +102,80 @@ window.superhtml = (() => {
     Updates the DOM given a series of update mappings and value
 
     @param {Array} mappings - array of mappings
-    @param {*} value - value insert into DOM 
   */
-  function updateDOM(mappings, value) {
-    for (let { type, className, expression, attribute } of mappings) {
-      if (type === 'replaceContent') {
-        document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
-      }
-      else if (type === 'replaceAttribute') {
-        let newAttributeValue = runExpression(expression);
-        // If attribute is class, don't overwrite our inserted hash class from render
-        if (attribute === 'class') {
-          newAttributeValue += ` ${className}`;
-        } 
-        document.getElementsByClassName(className)[0].setAttribute(attribute, newAttributeValue);
+  function updateDOM(updateProp) {
+    const mappings = updateMap[updateProp];
+    if (mappings) {
+      for (const { type, className, expression, attribute } of mappings) {
+        if (type === 'replaceContent') {
+          document.getElementsByClassName(className)[0].innerHTML = runExpression(expression);
+        }
+        else if (type === 'replaceAttribute') {
+          let newAttributeValue = runExpression(expression);
+          // If attribute is class, don't overwrite our inserted hash class from render
+          if (attribute === 'class') {
+            newAttributeValue += ` ${className}`;
+          } 
+          document.getElementsByClassName(className)[0].setAttribute(attribute, newAttributeValue);
+        }
       }
     }
   }
 
+  /*
+    Returns the full nested path of a object prop and value given the object
+    Assumes every [key, value] pair throughout object is unique
+
+    @param {Object} obj - input object
+    @param {String} inputProp - input prop
+    @param {String} inputValue - input value
+    @param {String} path - path recursion temporary storage variable 
+  */
+  function findFullPath(obj, inputProp, inputValue, path = '') {
+    for (const [prop, value] of Object.entries(obj)) {
+      if (prop === inputProp && value === inputValue) {
+        path += `.${prop}`;
+        return path.slice(1);
+      }
+      else if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
+        path += `.${prop}`;
+        return findFullPath(obj[prop], inputProp, inputValue, path);
+      }
+    }
+
+    return false;
+  }
+
+  /*
+    Returns a proxy trap which runs updateDOM with passed prop on underlying object set trigger
+  */
+  function createProxyTraps() {
+    return {
+      set: (obj, prop, value) => {
+        obj[prop] = value;
+        updateDOM(findFullPath(state, prop, value));
+        return true;
+      }
+    };
+  }
+
+
+  /*
+    Iterates over all child objects given parent object and inserts proxy for update mapping
+
+    @param {Object} obj - object
+    @return {Object} - object with proxies replacing children objects
+  */
+  function recurseObjectAndInsertProxy(obj) {
+    for (const prop in obj) {
+      if (typeof obj[prop] === 'object' && obj[prop] !== null && !obj[prop].length) {
+        obj[prop] = new Proxy(obj[prop], createProxyTraps());
+        recurseObjectAndInsertProxy(obj[prop]);
+      }
+    }
+    
+    return obj;
+  }
 
   /*
     Creates a SuperHTML state object given an object
@@ -128,15 +184,9 @@ window.superhtml = (() => {
     @return {Object} - proxied version of input state object
   */
   function createState(stateObject) {
-    const handler = {
-      set: (obj, prop, value) => {
-        obj[prop] = value;
-        updateDOM(updateMap[prop], value);
-        return true;
-      }
-    };
+    stateObject = recurseObjectAndInsertProxy(stateObject, createProxyTraps());
 
-    state = new Proxy(stateObject, handler);
+    state = new Proxy(stateObject, createProxyTraps());
 
     return state;
   }
@@ -149,6 +199,22 @@ window.superhtml = (() => {
   */
   function runExpression(str) {
     return Function(`'use strict'; return(${str})`)();
+  }
+
+  /*
+    Returns boolean based on if passsed function name is a prototype function of commonly used data types
+
+    @param {String} functionName - function name
+    @return {Boolean} is prototype boolean
+  */
+  function isPrototypeFunction(functionName) {
+    return (
+      Array.prototype.hasOwnProperty(functionName) || 
+      Object.prototype.hasOwnProperty(functionName) || 
+      Number.prototype.hasOwnProperty(functionName) || 
+      String.prototype.hasOwnProperty(funcitonName) || 
+      Boolean.prototype.hasOwnProperty(functionName)
+    );
   }
 
   /*
@@ -216,9 +282,26 @@ window.superhtml = (() => {
 
         // Get all state keys used in expression
         const stateKeysRegex = expression.match(/state\.([^\.]+)/g);
+
+        // Get all nested state keys used in expression
+        const nestedStateKeysRegex = expression.match(/state\.(.*\..*)/g);
+        
         let stateKeys = [];
+
         if (stateKeysRegex) {
-          stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_WORD));
+          stateKeys = stateKeysRegex.map(str => str.slice(LENGTH_OF_STATE_PREFIX));
+        }
+
+        if (nestedStateKeysRegex) {
+          for (const stateKey of nestedStateKeysRegex) {
+            const functionPrototypeRegex = stateKey.match(/\.([a-zA-Z]+)\(/);
+            if (functionPrototypeRegex && isPrototypeFunction(functionPrototypeRegex[1])) {
+              stateKeys.push(stateKey.replace(/\.[a-zA-z]+\(.*/, '').slice(LENGTH_OF_STATE_PREFIX));
+            }
+            else {
+              stateKeys.push(stateKey.slice(LENGTH_OF_STATE_PREFIX));
+            }
+          }
         }
 
         // State used within HTML element
