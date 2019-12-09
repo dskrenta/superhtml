@@ -225,7 +225,11 @@ window.superhtml = (() => {
       Number.prototype.hasOwnProperty(functionName) || 
       String.prototype.hasOwnProperty(funcitonName) || 
       Boolean.prototype.hasOwnProperty(functionName) ||
-      Function.prototype.hasOwnProperty(funcitonName)
+      Function.prototype.hasOwnProperty(funcitonName) ||
+      Symbol.prototype.hasOwnProperty(funcitonName) ||
+      BigInt.prototype.hasOwnProperty(functionName) ||
+      Math.prototype.hasOwnProperty(functionName) ||
+      Date.prototype.hasOwnProperty(functionName)
     );
   }
 
