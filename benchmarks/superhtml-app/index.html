@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <title>SuperHTML Feedvix Bechmark</title>
+    <style>
+    </style>
+  </head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <span id="root"></span>
+    <script type="text/javascript" src="../../src/superhtml.js"></script>
+    <script>
+      'use strict';
+
+      const { createState, registerToDOM, render, componentDidMount, template } = window.superhtml;
+
+      const state = createState({
+        name: 'Foo'
+      });
+
+      componentDidMount(() => {
+        console.log('component mounted');
+      });
+      
+      const DemoComponent = (state) => {
+        return render`
+          <h1>{state.name}</h1>
+        `;
+      };
+
+      registerToDOM('root', DemoComponent);
+    </script>
+  </body>
+</html>
