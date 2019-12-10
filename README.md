@@ -15,3 +15,5 @@ Open `test/index.html` in your desired web browser
     - SuperHTML src
   - test
     - Directory containing SuperHTML demo
+  - bechmarks
+    - Directory containing SuperHTML and React bechmark comparison
