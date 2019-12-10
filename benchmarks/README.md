@@ -28,9 +28,9 @@
 
 ## Results
 
-- SuperHTML is much faster in the scripting category due to it's small size
+- SuperHTML is much faster in the scripting category due to its miminal footprint with respect to function calls and overall script size
 - SuperHTML renders the example Feedvix page faster
-- SuperHTML results in the painting time also indicating a faster render
+- SuperHTML has a faster painting time also indicating a faster render
 - Loading times should be ignored as both tests were done locally from development tools
 
 ## Running the demos
