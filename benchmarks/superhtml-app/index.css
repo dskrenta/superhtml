@@ -1,0 +1,244 @@
+body {
+  padding-top: 16px;
+}
+.container {
+  max-width: 840px;
+}
+.item {
+  background: white;
+  color: #444;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1),0 0 0 1px rgba(0,0,0,0.05);
+  padding: 12px 0 12px 16px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.media-body {
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+h3 {
+  border-left: 5px solid var(--teal);
+}
+.blockquote {
+  border-left: 5px solid var(--blue);
+  padding-right: 12px;
+}
+.media {
+  border-left: 5px solid var(--red);
+}
+.wiki {
+  border-left: 5px solid var(--teal);
+}
+.joke {
+  border-left: 5px solid var(--yellow);
+  padding-right: 12px;
+}
+
+/* LOADING SYMBOL */
+
+#loading {
+  width: 100%;
+  padding: 24px 12px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #6c757d;
+}
+
+.vix {
+  height: 100px;
+  width: 100px;
+  position: relative;
+  margin: 24px 24px 36px 0;
+}
+.spine {
+  height: 50px;
+  width: 4px;
+  background: #345;
+  position: absolute;
+  left: 25px;
+  bottom: 25px;
+}
+.topJaw {
+  position: absolute;
+  height: 4px;
+  width: 35px;
+  transform: rotate(-25deg);
+  background: #345;
+  left: 27px;
+  top: 25px;
+  animation: topChomp 500ms ease-in-out infinite alternate;
+  transform-origin: bottom left;
+  z-index: 1;
+}
+.eye1 {
+  height: 6px;
+  width: 6px;
+  border-radius: 4px;
+  background: #345;
+  position: absolute;
+  top: -7px;
+  left: 0;
+  box-sizing: border-box;
+}
+.eye2 {
+  height: 6px;
+  width: 6px;
+  border-radius: 4px;
+  background: #345;
+  position: absolute;
+  top: -7px;
+  left: 7px;
+  box-sizing: border-box;
+}
+.ttooth1 {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #345;
+  position: absolute;
+  left: 15px;
+}
+.ttooth2 {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid #345;
+  position: absolute;
+  left: 25px;
+}
+.bottomJaw {
+  position: absolute;
+  height: 4px;
+  width: 35px;
+  transform: rotate(25deg);
+  background: #345;
+  left: 27px;
+  top: 28px;
+  animation: bottomChomp 500ms ease-in-out infinite alternate;
+  transform-origin: top left;
+  z-index: 1;
+}
+.btooth1 {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid #345;
+  position: absolute;
+  left: 10px;
+  bottom: 0;
+}
+.btooth2 {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid #345;
+  position: absolute;
+  left: 20px;
+  bottom: 0;
+}
+.leftArm {
+  height: 20px;
+  width: 4px;
+  background: #345;
+  position: absolute;
+  bottom: 30px;
+  left: 18px;
+  transform: rotate(-45deg);
+}
+.rightArm {
+  height: 20px;
+  width: 4px;
+  background: #345;
+  position: absolute;
+  bottom: 30px;
+  left: 32px;
+  transform: rotate(45deg);
+}
+.leftLeg {
+  height: 30px;
+  width: 4px;
+  background: #345;
+  position: absolute;
+  bottom: 0;
+  left: 17px;
+  transform: rotate(35deg);
+}
+.rightLeg {
+  height: 30px;
+  width: 4px;
+  background: #345;
+  position: absolute;
+  bottom: 0;
+  left: 33px;
+  transform: rotate(-35deg);
+}
+.ball {
+  height: 10px;
+  width: 10px;
+  border-radius: 5px;
+  background: red;
+  position: absolute;
+  top: 24px;
+  opacity: 0;
+}
+.ball1 {
+  animation: ballFeed 2s ease-in-out infinite;
+}
+.ball2 {
+  animation: ballFeed 2s ease-in-out 0.5s infinite;
+}
+.ball3 {
+  animation: ballFeed 2s ease-in-out 1s infinite;
+}
+.ball4 {
+  animation: ballFeed 2s ease-in-out 1.5s infinite;
+}
+
+@keyframes topChomp {
+  0% {
+    transform: rotate(-25deg);
+  }
+  100% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes bottomChomp {
+  0% {
+    transform: rotate(25deg);
+  }
+  100% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes ballFeed {
+  0% {
+    opacity: 0;
+    right: -20px;
+  }
+  20%, 80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    right: 50px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .item {
+    flex-direction: column;
+  }
+  .wiki > img {
+    margin-top: 12px;
+  }
+  .img {
+    max-width: 100%;
+  }
+}

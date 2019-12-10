@@ -5,31 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
     <title>SuperHTML Feedvix Bechmark</title>
-    <style>
-    </style>
+    <link rel="stylesheet" href="../common/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <span id="root"></span>
+    <div id="root"></div>
     <script type="text/javascript" src="../../src/superhtml.js"></script>
     <script>
       'use strict';
 
       const { createState, registerToDOM, render, componentDidMount, template } = window.superhtml;
 
+      const API_URL = 'https://feedvix.herokuapp.com/api';
+      const CONTENT_ID = 'content';
+      const LOADING_ID = 'loading';
+
+      async function fetchAndPlaceContent() {
+        try {
+          const res = await fetch(API_URL);
+          const results = await res.json();
+
+          let htmlStr = '';
+
+          for (let result of results) {
+            if (result.type === 'img' && result.url) {
+              htmlStr += `
+                <hr />
+                <img src=${result.url} class="img"></img>
+                <a href=${result.url} target="_blank" style="text-decoration: none; color: inherit">
+                  <figcaption class="figure-caption">${result.source}</figcaption>
+                </a>
+                <hr />
+              `;
+            }
+            else if (result.type === 'num') {
+              htmlStr += `<h3 class="item">${result.num}</h3>`;
+            }
+            else if (result.type === 'text') {
+              htmlStr += `<h3 class="item">${result.text}</h3>`;
+            }
+            else if (result.type === 'article') {
+              htmlStr += `
+                <div class="media item">
+                  <div class="media-body">
+                    <a href=${result.url} target="_blank" style="text-decoration: none; color: inherit">
+                      <h5 class="mt-0">${result.title}</h5>
+                    </a>
+                    <small class="text-muted">${result.source.name} - ${result.createdAt}</small>
+                    ${result.content ? `<p>${result.content}</p>` : ''}
+                  </div>
+                  <img src=${result.image} class="align-self-start mr-3"  width="200px" alt="...">
+                </div>
+              `;
+            }
+            else if (result.type === 'trivia' && (result.question && result.answer)) {
+              htmlStr += `
+                <blockquote class="blockquote item">
+                  <p class="mb-0">${result.question}</p>
+                  <footer class="blockquote-footer">${result.answer}</footer>
+                  ${result.value ? `<p class="text-muted">${result.value}</p>` : ''}
+                </blockquote>
+              `;
+            }
+            else if (result.type === 'quote') {
+              htmlStr += `
+                <blockquote class="blockquote item">
+                  <p class="mb-0">${result.content}</p>
+                  <footer class="blockquote-footer">${result.author}</footer>
+                </blockquote>
+              `;
+            }
+            else if (result.type === 'wiki') {
+              htmlStr += `
+                <div class="media item wiki">
+                  <div class="media-body">
+                    <a href=${result.url} target="_blank" style="text-decoration: none; color: inherit">
+                      <h5 class="mt-0">${result.title}</h5>
+                    </a>
+                    ${result.content ? `<p>${result.content}</p>` : ''}
+                    <figcaption class="figure-caption">Wikipedia</figcaption>
+                  </div>
+                  ${result.image ? `<img src=${result.image} class="align-self-start mr-3"  width="200px" alt=${result.title}>` : ''}
+                </div>
+              `;
+            }
+            else if (result.type === 'joke' && result.content) {
+              htmlStr += `
+                <blockquote class="blockquote joke item">
+                  ${result.content}
+                </blockquote>
+              `;
+            }
+          }
+
+          document.getElementById(LOADING_ID).remove();
+          state.content = htmlStr;
+        }
+        catch (error) {
+          console.error(error);
+        }
+      }
+
       const state = createState({
-        name: 'Foo'
+        content: ''
       });
 
       componentDidMount(() => {
         console.log('component mounted');
+
+        fetchAndPlaceContent();
       });
-      
+
       const DemoComponent = (state) => {
         return render`
-          <h1>{state.name}</h1>
+          <div class="container">
+            <h1>
+              Feed<span style="color: red">vix</span>
+              <small class="text-muted">(David's Feed)</small>
+            </h1>
+            <hr />
+            <div id="loading">
+              <h5>Loading...</h5>
+              <div class="vix">
+                <div class="spine"></div>
+                <div class="topJaw">
+                  <div class="eye1"></div>
+                  <div class="eye2"></div>
+                  <div class="ttooth1"></div>
+                  <div class="ttooth2"></div>
+                </div>
+                <div class="bottomJaw">
+                  <div class="btooth1"></div>
+                  <div class="btooth2"></div>
+                </div>
+                <div class="leftArm"></div>
+                <div class="rightArm"></div>
+                <div class="leftLeg"></div>
+                <div class="rightLeg"></div>
+                <div class="ball ball1"></div>
+                <div class="ball ball2"></div>
+                <div class="ball ball3"></div>
+                <div class="ball ball4"></div>
+              </div>
+              <h6>Don't forget to Feed <span style="color: red">Vix!</span></h6>
+            </div>
+            <div>{state.content}</div>
+          </div>
         `;
       };
 
