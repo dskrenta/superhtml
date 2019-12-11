@@ -1,6 +1,9 @@
 'use strict';
 
 window.superhtml = (() => {
+  // Debug
+  const DEBUG = false;
+
   // Length of the string "state."
   const LENGTH_OF_STATE_PREFIX = 6;
 
@@ -240,6 +243,12 @@ window.superhtml = (() => {
     @return {String} - resultant formatted HTML string
   */
   function render(strings, ...values) {
+    let renderHash = createRandomClass();
+
+    if (DEBUG) {
+      console.time(`render${renderHash}`);
+    }
+
     let htmlStr = '';
     const fullString = strings.map((string, index) => `${string}${values[index] || ''}`).join();
     const expressions = fullString.match(/\{(.*?)\}/g).map(str => str.slice(1, str.length - 1));
@@ -348,6 +357,11 @@ window.superhtml = (() => {
     }
 
     componentMounted.resolve();
+
+    if (DEBUG) {
+      console.timeEnd(`render${renderHash}`);
+      console.log(updateMap);
+    };
 
     return htmlStr;
   }
